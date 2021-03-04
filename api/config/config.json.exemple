@@ -1,0 +1,23 @@
+{
+  "development": {
+    "username": "usuario",
+    "password": "senha",
+    "database": "banco-de-dados",
+    "host": "IP",
+    "dialect": "mysql"
+  },
+  "test": {
+    "username": "usuario",
+    "password": "senha",
+    "database": "banco-de-dados",
+    "host": "IP",
+    "dialect": "mysql"
+  },
+  "production": {
+    "username": "usuario",
+    "password": "senha",
+    "database": "banco-de-dados",
+    "host": "IP",
+    "dialect": "mysql"
+  }
+}
