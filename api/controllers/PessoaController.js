@@ -1,67 +1,113 @@
 const database = require('../models')
-const Pessoa = require('../hellpers/Pessoa')
-
-const validaPessoaExiste = async (id) => {
-  const pessoaValida = await database.Pessoas.findOne({
-    where: { id: id }
-  })
-  if (!pessoaValida) throw new Error('Pessoa não localizada!')
-
-  return true
-}
 
 class PessoaController {
-  static async listarPessoas (_, res, next) {
+  static async pegaTodasAsPessoas(req, res){
     try {
-      const pessoas = await database.Pessoas.findAll()
-      if (pessoas) res.status(200).json(pessoas)
-      else throw new Error('Não foram encontrados dados de pessoas!')
-    } catch (error) { res.status(400).send({ mensagem: error.message }) }
+      const todasAsPessoas = await database.Pessoas.findAll()
+      return res.status(200).json(todasAsPessoas)  
+    } catch (error) {
+      return res.status(500).json(error.message)
+    }
   }
 
-  static async selecionarPessoa (req, res, next) {
+  static async pegaUmaPessoa(req, res) {
+    const { id } = req.params
     try {
-      const { idPessoa } = req.params
-      const pessoa = await database.Pessoas.findOne({
-        where: { id: idPessoa }
+      const umaPessoa = await database.Pessoas.findOne( { 
+        where: { 
+          id: Number(id) 
+        }
       })
-
-      if (pessoa) res.status(200).json(pessoa)
-      else throw new Error('Pessoa não localizada!')
-    } catch (error) { res.status(400).send({ mensagem: error.message }) }
+      return res.status(200).json(umaPessoa)
+    } catch (error) {
+      return res.status(500).json(error.message)
+    }
   }
 
-  static async criarPessoa (req, res, next) {
+  static async criaPessoa(req, res) {
+    const novaPessoa = req.body
     try {
-      const pessoa = new Pessoa(req.body)
-      pessoa.validaPessoa()
-      await database.Pessoas.create(pessoa)
-      res.status(201).json(pessoa)
-    } catch (error) { res.status(400).send({ mensagem: error.message }) }
+      const novaPessoaCriada = await database.Pessoas.create(novaPessoa)
+      return res.status(200).json(novaPessoaCriada)
+    } catch (error) {
+      return res.status(500).json(error.message)
+    }
   }
 
-  static async atualizarPessoa (req, res, next) {
+  static async atualizaPessoa(req, res) {
+    const { id } = req.params
+    const novasInfos = req.body
     try {
-      const { idPessoa } = req.params
-      const dadosPraAtualizar = Object.assign({}, req.body, { id: idPessoa })
-      const pessoaAtualizar = new Pessoa(dadosPraAtualizar)
-
-      pessoaAtualizar.verificaCampos()
-      await validaPessoaExiste(idPessoa)
-
-      await database.Pessoas.update(pessoaAtualizar, { where: { id: idPessoa } })
-      res.status(204).end()
-    } catch (error) { res.status(400).send({ mensagem: error.message }) }
+      await database.Pessoas.update(novasInfos, { where: { id: Number(id) }})
+      const pessoaAtualizada = await database.Pessoas.findOne( { where: { id: Number(id) }})
+      return res.status(200).json(pessoaAtualizada)
+    } catch (error) {
+      return res.status(500).json(error.message)
+    }
   }
 
-  static async deletarPessoa (req, res, next) {
+  static async apagaPessoa(req, res) {
+    const { id } = req.params
     try {
-      const { idPessoa } = req.params
-      await validaPessoaExiste(idPessoa)
+      await database.Pessoas.destroy({ where: { id: Number(id) }})
+      return res.status(200).json({ mensagem: `id ${id} deletado` })
 
-      await database.Pessoas.destroy({ where: { id: idPessoa } })
-      res.status(204).end()
-    } catch (error) { res.status(400).send({ mensagem: error.message }) }
+    } catch (error) {
+      return res.status(500).json(error.message)
+    }
+  }
+
+  static async pegaUmaMatricula(req, res) {
+    const { estudanteId, matriculaId } = req.params
+    try {
+      const umaMatricula = await database.Matriculas.findOne( { 
+        where: { 
+          id: Number(matriculaId),
+          estudante_id: Number(estudanteId)
+        }
+      })
+      return res.status(200).json(umaMatricula)
+    } catch (error) {
+      return res.status(500).json(error.message)
+    }
+  }
+
+  static async criaMatricula(req, res) {
+    const { estudanteId } = req.params
+    const novaMatricula = { ...req.body, estudante_id: Number(estudanteId) }
+    try {
+      const novaMatriculaCriada = await database.Matriculas.create(novaMatricula)
+      return res.status(200).json(novaMatriculaCriada)
+    } catch (error) {
+      return res.status(500).json(error.message)
+    }
+  }
+
+  static async atualizaMatricula(req, res) {
+    const { estudanteId, matriculaId } = req.params
+    const novasInfos = req.body
+    try {
+      await database.Matriculas.update(novasInfos, { 
+        where: { 
+          id: Number(matriculaId),
+          estudante_id: Number(estudanteId) 
+        }})
+      const MatriculaAtualizada = await database.Matriculas.findOne( { where: { id: Number(matriculaId) }})
+      return res.status(200).json(MatriculaAtualizada)
+    } catch (error) {
+      return res.status(500).json(error.message)
+    }
+  }
+
+  static async apagaMatricula(req, res) {
+    const { matriculaId } = req.params
+    try {
+      await database.Matriculas.destroy({ where: { id: Number(matriculaId) }})
+      return res.status(200).json({ mensagem: `id ${matriculaId} deletado` })
+
+    } catch (error) {
+      return res.status(500).json(error.message)
+    }
   }
 }
 

@@ -1,10 +1,10 @@
 module.exports = {
-  up: (queryInterface, Sequelize) => {
+  up: (queryInterface) => {
     return queryInterface.bulkInsert('Niveis', [
       {
         descr_nivel: 'básico',
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date()			
       },
       {
         descr_nivel: 'intermediário',
@@ -15,11 +15,11 @@ module.exports = {
         descr_nivel: 'avançado',
         createdAt: new Date(),
         updatedAt: new Date()
-      }
+      } 
     ], {})
   },
 
-  down: (queryInterface, Sequelize) => {
+  down: (queryInterface) => {
     return queryInterface.bulkDelete('Niveis', null, {})
   }
 }
